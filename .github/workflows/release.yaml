@@ -1,6 +1,12 @@
 name: release
-
-on: push
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'stable/**'
+  release:
+    types: [published, created]
 
 jobs:
   release:
