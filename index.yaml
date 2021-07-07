@@ -3,12 +3,12 @@ entries:
   helm-query-exporter:
   - apiVersion: v2
     appVersion: 1.0.0
-    created: "2021-07-07T10:14:08.653008082Z"
+    created: "2021-07-07T10:14:17.586246731Z"
     description: A Helm chart for Query Exporter
-    digest: 4b896335c395b65346a0df097f009f3fff2b16efdaed25f6bb42986c069af4cf
+    digest: 8ee1955c4954c771a6892ae4ba2717f63950cc8de40b94d989a39a70cb80c02a
     name: helm-query-exporter
     type: application
     urls:
     - https://theserverkid.github.io/helm-query-exporter/helm-query-exporter-0.1.0.tgz
     version: 0.1.0
-generated: "2021-07-07T10:14:08.65219175Z"
+generated: "2021-07-07T10:14:17.585551439Z"
