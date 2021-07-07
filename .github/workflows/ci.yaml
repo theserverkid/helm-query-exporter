@@ -1,10 +1,5 @@
 name: Lint and Test Charts
 
-on:
-  pull_request:
-    paths:
-      - 'stable/**'
-
 jobs:
   lint-chart:
     runs-on: ubuntu-latest
