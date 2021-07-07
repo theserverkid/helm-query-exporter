@@ -33,19 +33,31 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
             - name: metrics-config
-              mountPath: "/config"
+              mountPath: "/config.yaml"
+              subPath: config.yaml
+          env:
+            - name: CONFIG_FILE
+              value: '/config.yaml'
+          {{ range $key, $val := .Values.configuration.databases }}
+            {{ $parts := split ":" $val.dsn }}
+            - name: {{ $parts._1 }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $parts._1 | lower | replace "_" "-" }}
+                  key: dsn
+          {{ end }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 9560
               protocol: TCP
-#          livenessProbe:
-#            httpGet:
-#              path: /
-#              port: http
-#          readinessProbe:
-#            httpGet:
-#              path: /
-#              port: http
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
