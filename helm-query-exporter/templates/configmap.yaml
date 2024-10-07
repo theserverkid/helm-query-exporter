@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metrics-config
+  labels:
+    {{- include "helm-query-exporter.labels" . | nindent 4 }}
+data:
+  # property-like keys; each key maps to a simple value
+  config.yaml: |
+    {{- toYaml .Values.configuration | nindent 8 }}

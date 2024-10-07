@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm-query-exporter.fullname" . }}
+  labels:
+    {{- include "helm-query-exporter.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "helm-query-exporter.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "helm-query-exporter.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "helm-query-exporter.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: metrics-config
+              mountPath: "/config.yaml"
+              subPath: config.yaml
+          env:
+            - name: CONFIG_FILE
+              value: '/config.yaml'
+          {{ range $key, $val := .Values.configuration.databases }}
+            {{ $parts := split ":" $val.dsn }}
+            - name: {{ $parts._1 }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $parts._1 | lower | replace "_" "-" }}
+                  key: dsn
+          {{ end }}
+          ports:
+            - name: http
+              containerPort: 9560
+              protocol: TCP
+          livenessProbe:
+             exec:
+              command:
+                - ls
+          readinessProbe:
+             exec:
+              command:
+                - ls
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: metrics-config
+          configMap:
+            name: metrics-config
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
